@@ -1,0 +1,68 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="haotr (generated)" id="1740558351874-1">
+        <createTable tableName="db_user_base_customer">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_user_base_customerPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(255)"/>
+            <column name="birthday" type="datetime"/>
+            <column name="gender" type="INT"/>
+            <column name="commune_id" type="BIGINT"/>
+            <column name="district_id" type="BIGINT"/>
+            <column name="province_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="haotr (generated)" id="1740558351874-2">
+        <createTable tableName="db_user_base_nation">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_user_base_nationPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="type" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="haotr (generated)" id="1740558351874-3">
+        <addForeignKeyConstraint baseColumnNames="province_id" baseTableName="db_user_base_customer" constraintName="FKc6mtvs67s281isr4gu3hxvx0w" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_nation" validate="true"/>
+    </changeSet>
+    <changeSet author="haotr (generated)" id="1740558351874-4">
+        <addForeignKeyConstraint baseColumnNames="district_id" baseTableName="db_user_base_customer" constraintName="FKh4g3hjmxhw8s1oj8ve4281jxk" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_nation" validate="true"/>
+    </changeSet>
+    <changeSet author="haotr (generated)" id="1740558351874-5">
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="db_user_base_customer" constraintName="FKp9k0sso0tnqsk8jj99iv8a75d" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_account" validate="true"/>
+    </changeSet>
+    <changeSet author="haotr (generated)" id="1740558351874-6">
+        <addForeignKeyConstraint baseColumnNames="commune_id" baseTableName="db_user_base_customer" constraintName="FKq60aooc9d5qjwiw2mcsirvgjx" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_nation" validate="true"/>
+    </changeSet>
+</databaseChangeLog>
