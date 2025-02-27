@@ -9,19 +9,24 @@ import com.base.auth.form.customer.CreateCustomerForm;
 import com.base.auth.form.customer.UpdateCustomerForm;
 import com.base.auth.mapper.CustomerMapper;
 import com.base.auth.model.Account;
+import com.base.auth.model.Cart;
 import com.base.auth.model.Customer;
 import com.base.auth.model.Group;
 import com.base.auth.model.Nation;
 import com.base.auth.model.criteria.CustomerCriteria;
 import com.base.auth.repository.AccountRepository;
+import com.base.auth.repository.CartRepository;
 import com.base.auth.repository.CustomerRepository;
 import com.base.auth.repository.GroupRepository;
 import com.base.auth.repository.NationRepository;
+import com.base.auth.utils.StringUtils;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,6 +67,9 @@ public class CustomerController {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
+  @Autowired
+  private CartRepository cartRepository;
+
   @PostMapping(value = "/create", produces= MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('C_C')")
   public ApiMessageDto<String> create(@Valid @RequestBody CreateCustomerForm request, BindingResult bindingResult){
@@ -93,6 +101,12 @@ public class CustomerController {
     customer.setDistrict(districtNation);
     customer.setCommune(communeNation);
     customerRepository.save(customer);
+
+    // Tạo mới cart khi tạo customer
+    Cart cart = new Cart();
+    cart.setCustomer(customer);
+    cart.setCode(StringUtils.generateUniqueCode(cartRepository::existsByCode));
+    cartRepository.save(cart);
     apiMessageDto.setMessage("Create customer success");
     return apiMessageDto;
   }
@@ -166,6 +180,7 @@ public class CustomerController {
     Customer customer = customerRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Customer id not found"));
 
+    cartRepository.deleteCartById(id);
     customerRepository.deleteCustomerById(id);
     accountRepository.deleteAccountById(id);
 

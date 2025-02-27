@@ -1,6 +1,7 @@
 package com.base.auth.repository;
 
 import com.base.auth.model.Customer;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -19,4 +20,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>,
       + "FROM Customer c "
       + "WHERE c.province.id = :id OR c.district.id = :id OR c.commune.id = :id")
   boolean existsByProvinceOrDistrictOrCommune(@Param("id") Long id);
+
+  Optional<Customer> findByAccountUsername(String username);
 }

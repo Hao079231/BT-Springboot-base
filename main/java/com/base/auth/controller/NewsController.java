@@ -104,7 +104,7 @@ public class NewsController {
     return apiMessageDto;
   }
 
-  @DeleteMapping("/delete/{id}")
+  @DeleteMapping(value = "/delete/{id}", produces= MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('N_D')")
   public ApiMessageDto<String> deleteNews(@PathVariable("id") Long id){
     ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
