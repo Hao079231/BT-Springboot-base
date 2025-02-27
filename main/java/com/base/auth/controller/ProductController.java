@@ -7,8 +7,10 @@ import com.base.auth.exception.NotFoundException;
 import com.base.auth.form.product.CreateProductForm;
 import com.base.auth.form.product.UpdateProductForm;
 import com.base.auth.mapper.ProductMapper;
+import com.base.auth.model.CartItem;
 import com.base.auth.model.Product;
 import com.base.auth.model.criteria.ProductCriteria;
+import com.base.auth.repository.CartItemRepository;
 import com.base.auth.repository.ProductRepository;
 import java.util.List;
 import javax.validation.Valid;
@@ -37,6 +39,9 @@ public class ProductController {
 
   @Autowired
   private ProductMapper productMapper;
+
+  @Autowired
+  private CartItemRepository cartItemRepository;
 
   @PostMapping(value = "/create", produces= MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('P_C')")
@@ -103,6 +108,12 @@ public class ProductController {
     ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
     Product product = productRepository.findById(id).orElseThrow(() ->
         new NotFoundException("Product id not found"));
+    CartItem cartItem = cartItemRepository.findByProductId(id);
+    if (cartItem != null){
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("Cannot delete the product because it exists in the cart item!");
+      return apiMessageDto;
+    }
     productRepository.deleteById(id);
     apiMessageDto.setMessage("Delete success");
     return apiMessageDto;

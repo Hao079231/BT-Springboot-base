@@ -19,6 +19,7 @@ import com.base.auth.repository.CartRepository;
 import com.base.auth.repository.CustomerRepository;
 import com.base.auth.repository.GroupRepository;
 import com.base.auth.repository.NationRepository;
+import com.base.auth.utils.StringUtils;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -104,7 +105,7 @@ public class CustomerController {
     // Tạo mới cart khi tạo customer
     Cart cart = new Cart();
     cart.setCustomer(customer);
-    cart.setCode(UUID.randomUUID().toString().substring(0, 6));
+    cart.setCode(StringUtils.generateUniqueCode(cartRepository::existsByCode));
     cartRepository.save(cart);
     apiMessageDto.setMessage("Create customer success");
     return apiMessageDto;
@@ -179,6 +180,7 @@ public class CustomerController {
     Customer customer = customerRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Customer id not found"));
 
+    cartRepository.deleteCartById(id);
     customerRepository.deleteCustomerById(id);
     accountRepository.deleteAccountById(id);
 
