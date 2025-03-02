@@ -11,6 +11,7 @@ import com.base.auth.mapper.OrderMapper;
 import com.base.auth.model.Cart;
 import com.base.auth.model.CartItem;
 import com.base.auth.model.Customer;
+import com.base.auth.model.CustomerAddress;
 import com.base.auth.model.Order;
 import com.base.auth.model.OrderItem;
 import com.base.auth.model.Product;
@@ -46,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/order")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
-public class OrderController {
+public class OrderController extends ABasicController{
   @Autowired
   private OrderRepository orderRepository;
 
@@ -69,17 +70,8 @@ public class OrderController {
   @PreAuthorize("hasRole('O_C')")
   public ApiMessageDto<String> placeOrder(){
     ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !authentication.isAuthenticated()) {
-      apiMessageDto.setResult(false);
-      apiMessageDto.setMessage("Account not authenticated");
-      return apiMessageDto;
-    }
-
-    String username = authentication.getName();
-
-    Customer customer = customerRepository.findByAccountUsername(username)
-        .orElseThrow(() -> new NotFoundException("Customer not found"));
+    Customer customer = customerRepository.findById(getCurrentUser()).orElseThrow(()
+    -> new NotFoundException("Customer not found"));
 
     Cart cart = cartRepository.findById(customer.getId())
         .orElseThrow(() -> new NotFoundException("Cart not found"));
@@ -95,7 +87,7 @@ public class OrderController {
     order.setState(UserBaseConstant.ORDER_BOOKING);
 
     double totalMoney = 0;
-    int totalSaleOff = 0;
+    double totalSaleOff = 0;
 
     List<OrderItem> orderItems = new ArrayList<>();
     for (CartItem cartItem : cartItems) {
@@ -106,10 +98,10 @@ public class OrderController {
       orderItem.setProduct(product);
       orderItem.setQuantity(cartItem.getQuantity());
       orderItem.setSinglePrice(Double.valueOf(product.getPrice()));
-      orderItem.setSaleOff(product.getSaleOff());
+      orderItem.setSaleOff(Double.valueOf(product.getSaleOff()));
 
       totalMoney += cartItem.getQuantity() * product.getPrice();
-      totalSaleOff += cartItem.getQuantity() * product.getSaleOff();
+      totalSaleOff += cartItem.getProduct().getPrice() - cartItem.getQuantity() * ((double) product.getSaleOff() / 100);
 
       orderItems.add(orderItem);
     }
@@ -125,7 +117,8 @@ public class OrderController {
   }
 
   @PutMapping("/approve")
-  public ApiMessageDto<String> approveOrder(@Valid @RequestBody UpdateOrderForm form) {
+  @PreAuthorize("hasRole('O_A')")
+  public ApiMessageDto<String> changeStateOrder(@Valid @RequestBody UpdateOrderForm form) {
     ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
     Order order = orderRepository.findById(form.getId())
         .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -133,22 +126,13 @@ public class OrderController {
     int currentState = order.getState();
     int newState = form.getState();
 
-    List<Integer> validStates = Arrays.asList(
-        UserBaseConstant.ORDER_BOOKING,
-        UserBaseConstant.ORDER_APPROVED,
-        UserBaseConstant.ORDER_DELIVERY,
-        UserBaseConstant.ORDER_DONE,
-        UserBaseConstant.ORDER_CANCEL
-    );
-
-    if (!validStates.contains(newState)) {
+    if (!UserBaseConstant.validStates.contains(newState)) {
       apiMessageDto.setResult(false);
       apiMessageDto.setMessage("Invalid state transition");
       return apiMessageDto;
     }
 
-    boolean isValidTransition = (newState == currentState + 1)
-        || (currentState == UserBaseConstant.ORDER_DELIVERY && newState == UserBaseConstant.ORDER_CANCEL);
+    boolean isValidTransition = (newState == currentState + 1);
 
     if (!isValidTransition) {
       apiMessageDto.setResult(false);
@@ -163,7 +147,40 @@ public class OrderController {
     return apiMessageDto;
   }
 
-  @GetMapping(value = "/admin/list", produces= MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping("/cancel")
+  @PreAuthorize("hasRole('O_CL')")
+  public ApiMessageDto<String> cancelOrder(@Valid @RequestBody UpdateOrderForm form) {
+    ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
+    Order order = orderRepository.findById(form.getId())
+        .orElseThrow(() -> new RuntimeException("Order not found"));
+
+    int currentState = order.getState();
+    int newState = form.getState();
+
+    if (!UserBaseConstant.validStates.contains(newState)) {
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("Invalid state transition");
+      return apiMessageDto;
+    }
+
+    boolean isValidTransition =
+        (currentState == UserBaseConstant.ORDER_BOOKING && newState == UserBaseConstant.ORDER_CANCEL) ||
+        (currentState == UserBaseConstant.ORDER_DELIVERY && newState == UserBaseConstant.ORDER_CANCEL);
+
+    if (!isValidTransition) {
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("Invalid state transition");
+      return apiMessageDto;
+    }
+
+    order.setState(newState);
+    orderRepository.save(order);
+    apiMessageDto.setMessage("Order cancel successful");
+
+    return apiMessageDto;
+  }
+
+  @GetMapping(value = "/list", produces= MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('O_AL')")
   public ApiMessageDto<ResponseListDto<List<OrderItemAdminDto>>> getListOrderItemByAdmin(OrderItemCriteria request, Pageable pageable){
     ApiMessageDto<ResponseListDto<List<OrderItemAdminDto>>> apiMessageDto = new ApiMessageDto<>();
@@ -175,7 +192,7 @@ public class OrderController {
     return apiMessageDto;
   }
 
-  @GetMapping(value = "/admin/get/{id}", produces= MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/get/{id}", produces= MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('O_AV')")
   public ApiMessageDto<OrderItemAdminDto> getOrderItemByAdmin(@PathVariable Long id){
     ApiMessageDto<OrderItemAdminDto> apiMessageDto = new ApiMessageDto<>();
@@ -186,10 +203,17 @@ public class OrderController {
     return apiMessageDto;
   }
 
-  @GetMapping(value = "/customer/list", produces= MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/client/list", produces= MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('O_CL')")
   public ApiMessageDto<ResponseListDto<List<OrderItemDto>>> getListOrderItemByCustomer(OrderItemCriteria request, Pageable pageable){
     ApiMessageDto<ResponseListDto<List<OrderItemDto>>> apiMessageDto = new ApiMessageDto<>();
+    List<Order> orderList = orderRepository.findByCustomerId(getCurrentUser());
+    if (orderList.isEmpty()) {
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("No orders found for the current user");
+      return apiMessageDto;
+    }
+    request.setOrders(orderList);
     Page<OrderItem> orders = orderItemRepository.findAll(request.getSpecification(), pageable);
     List<OrderItemDto> list = orderMapper.fromOrderItemToListDto(orders.getContent());
     ResponseListDto<List<OrderItemDto>> pageResult = new ResponseListDto<>(list, orders.getTotalElements(), orders.getTotalPages());
@@ -198,12 +222,15 @@ public class OrderController {
     return apiMessageDto;
   }
 
-  @GetMapping(value = "/customer/get/{id}", produces= MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/client/get/{id}", produces= MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('O_CV')")
   public ApiMessageDto<OrderItemDto> getOrderItemByCustomer(@PathVariable Long id){
     ApiMessageDto<OrderItemDto> apiMessageDto = new ApiMessageDto<>();
     OrderItem orderItem = orderItemRepository.findById(id).orElseThrow(()
         -> new NotFoundException("Order item id not found"));
+    if (!orderItem.getOrder().getCustomer().getId().equals(getCurrentUser())) {
+      throw new NotFoundException("You do not have permission to view this order item");
+    }
     apiMessageDto.setData(orderMapper.fromOrderItemToDto(orderItem));
     apiMessageDto.setMessage("Order item information");
     return apiMessageDto;
