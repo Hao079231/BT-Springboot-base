@@ -1,0 +1,66 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="haotr (generated)" id="1740704500324-1">
+        <createTable tableName="db_user_base_order">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_user_base_orderPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="state" type="INT"/>
+            <column name="total_money" type="DOUBLE PRECISION"/>
+            <column name="total_sale_off" type="INT"/>
+            <column name="customer_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="haotr (generated)" id="1740704500324-2">
+        <createTable tableName="db_user_base_order_item">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_user_base_order_itemPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INT"/>
+            <column name="sale_off" type="INT"/>
+            <column name="single_price" type="DOUBLE PRECISION"/>
+            <column name="order_id" type="BIGINT"/>
+            <column name="product_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="haotr (generated)" id="1740704500324-3">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="db_user_base_order_item" constraintName="FK75mm45h0hikk7js0td6p3sl0t" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_order" validate="true"/>
+    </changeSet>
+    <changeSet author="haotr (generated)" id="1740704500324-4">
+        <addForeignKeyConstraint baseColumnNames="product_id" baseTableName="db_user_base_order_item" constraintName="FKg8yxypd7cdcft7uhjm20r0wgp" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_product" validate="true"/>
+    </changeSet>
+    <changeSet author="haotr (generated)" id="1740704500324-5">
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="db_user_base_order" constraintName="FKl49a6h7k2cnwwhwm7ej4rgc2c" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_customer" validate="true"/>
+    </changeSet>
+</databaseChangeLog>
