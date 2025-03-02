@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/cartItem")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
-public class CartItemController {
+public class CartItemController extends ABasicController{
   @Autowired
   private CartItemRepository cartItemRepository;
 
@@ -48,17 +48,8 @@ public class CartItemController {
   public ApiMessageDto<String> updateCartItem(@RequestBody List<CartItemForm> cartItemRequests) {
     ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
 
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !authentication.isAuthenticated()) {
-      apiMessageDto.setResult(false);
-      apiMessageDto.setMessage("Account not authenticated");
-      return apiMessageDto;
-    }
-
-    String username = authentication.getName();
-
-    Customer customer = customerRepository.findByAccountUsername(username)
-        .orElseThrow(() -> new NotFoundException("Customer not found"));
+    Customer customer = customerRepository.findById(getCurrentUser()).orElseThrow(()
+    -> new NotFoundException("Customer not found"));
 
     Cart cart = cartRepository.findById(customer.getId())
         .orElseThrow(() -> new NotFoundException("Cart not found"));

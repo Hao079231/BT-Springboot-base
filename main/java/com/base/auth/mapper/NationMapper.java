@@ -52,4 +52,5 @@ public interface NationMapper {
 
   @IterableMapping(elementTargetType = NationDto.class, qualifiedByName = "fromNationToCompleteDto")
   List<NationDto> fromNationToDtoList(List<Nation> nations);
+
 }

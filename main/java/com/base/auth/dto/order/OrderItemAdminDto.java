@@ -17,6 +17,6 @@ public class OrderItemAdminDto extends ABasicAdminDto {
   @ApiModelProperty(name = "Product price")
   private Double singlePrice;
   @ApiModelProperty(name = "Product sale off")
-  private Integer saleOff;
+  private Double saleOff;
   private OrderAdminDto orderAdminDto;
 }

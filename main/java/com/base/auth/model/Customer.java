@@ -31,19 +31,4 @@ public class Customer extends Auditable<String>{
   private Date birthday;
   private Integer gender;
   private String address;
-
-  @ManyToOne
-  @JoinColumn(name = "province_id")
-  @JsonIgnore
-  private Nation province;
-
-  @ManyToOne
-  @JoinColumn(name = "district_id")
-  @JsonIgnore
-  private Nation district;
-
-  @ManyToOne
-  @JoinColumn(name = "commune_id")
-  @JsonIgnore
-  private Nation commune;
 }

@@ -16,10 +16,5 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>,
   @Query("DELETE FROM Customer c WHERE c.id = :customerId")
   void deleteCustomerById(@Param("customerId") Long customerId);
 
-  @Query("SELECT COUNT(c) > 0 "
-      + "FROM Customer c "
-      + "WHERE c.province.id = :id OR c.district.id = :id OR c.commune.id = :id")
-  boolean existsByProvinceOrDistrictOrCommune(@Param("id") Long id);
-
   Optional<Customer> findByAccountUsername(String username);
 }

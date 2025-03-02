@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,4 +29,7 @@ public class Nation extends Auditable<String>{
   private String description;
   @Column(name = "type")
   private Integer type;
+  @ManyToOne
+  @JoinColumn(name = "parent_id")
+  private Nation parent;
 }

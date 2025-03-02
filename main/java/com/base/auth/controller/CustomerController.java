@@ -12,21 +12,17 @@ import com.base.auth.model.Account;
 import com.base.auth.model.Cart;
 import com.base.auth.model.Customer;
 import com.base.auth.model.Group;
-import com.base.auth.model.Nation;
 import com.base.auth.model.criteria.CustomerCriteria;
 import com.base.auth.repository.AccountRepository;
 import com.base.auth.repository.CartRepository;
 import com.base.auth.repository.CustomerRepository;
 import com.base.auth.repository.GroupRepository;
-import com.base.auth.repository.NationRepository;
 import com.base.auth.utils.StringUtils;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,9 +52,6 @@ public class CustomerController {
   private GroupRepository groupRepository;
 
   @Autowired
-  private NationRepository nationRepository;
-
-  @Autowired
   private AccountRepository accountRepository;
 
   @Autowired
@@ -83,23 +76,11 @@ public class CustomerController {
 
     Group group = groupRepository.findFirstByKind(UserBaseConstant.GROUP_KIND_CUSTOMER);
 
-    Nation provinceNation = nationRepository.findByIdAndType(request.getProvinceId(),
-        UserBaseConstant.NATION_TYPE_PROVINCE).orElseThrow(()
-        -> new NotFoundException("Province id not found"));
-
-    Nation districtNation = nationRepository.findByIdAndType(request.getDistrictId(), UserBaseConstant.NATION_TYPE_DISTRICT).orElseThrow(()
-        -> new NotFoundException("District id not found"));
-
-    Nation communeNation = nationRepository.findByIdAndType(request.getCommuneId(), UserBaseConstant.NATION_TYPE_COMMUNE).orElseThrow(()
-        -> new NotFoundException("Commune id not found"));
     Customer customer = customerMapper.fromCreateToCustomer(request);
     customer.getAccount().setPassword(passwordEncoder.encode(request.getPassword()));
     customer.getAccount().setLastLogin(new Date());
     customer.getAccount().setGroup(group);
     customer.getAccount().setKind(UserBaseConstant.USER_KIND_USER);
-    customer.setProvince(provinceNation);
-    customer.setDistrict(districtNation);
-    customer.setCommune(communeNation);
     customerRepository.save(customer);
 
     // Tạo mới cart khi tạo customer
@@ -149,23 +130,11 @@ public class CustomerController {
       }
     }
     Group group = groupRepository.findFirstByKind(UserBaseConstant.GROUP_KIND_CUSTOMER);
-
-    Nation provinceNation = nationRepository.findByIdAndType(request.getProvinceId(), UserBaseConstant.NATION_TYPE_PROVINCE).orElseThrow(()
-        -> new NotFoundException("Province id not found"));
-
-    Nation districtNation = nationRepository.findByIdAndType(request.getDistrictId(), UserBaseConstant.NATION_TYPE_DISTRICT).orElseThrow(()
-        -> new NotFoundException("District id not found"));
-
-    Nation communeNation = nationRepository.findByIdAndType(request.getCommuneId(), UserBaseConstant.NATION_TYPE_COMMUNE).orElseThrow(()
-        -> new NotFoundException("Commune id not found"));
     customerMapper.mappingForUpdateCustomer(request, customer);
     customer.getAccount().setPassword(passwordEncoder.encode(request.getPassword()));
     customer.getAccount().setLastLogin(new Date());
     customer.getAccount().setGroup(group);
     customer.getAccount().setKind(UserBaseConstant.USER_KIND_USER);
-    customer.setProvince(provinceNation);
-    customer.setDistrict(districtNation);
-    customer.setCommune(communeNation);
     customerRepository.save(customer);
     apiMessageDto.setMessage("Update customer success");
     return apiMessageDto;

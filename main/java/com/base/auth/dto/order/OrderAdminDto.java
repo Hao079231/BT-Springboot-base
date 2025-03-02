@@ -11,7 +11,7 @@ public class OrderAdminDto extends ABasicAdminDto {
   @ApiModelProperty(name = "Order total money")
   private Double totalMoney;
   @ApiModelProperty(name = "Order total sale off")
-  private Integer totalSaleOff;
+  private Double totalSaleOff;
   @ApiModelProperty(name = "Customer name")
   private String customerName;
   @ApiModelProperty(name = "Order state")

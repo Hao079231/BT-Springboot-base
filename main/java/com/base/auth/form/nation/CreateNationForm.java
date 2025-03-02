@@ -20,4 +20,6 @@ public class CreateNationForm{
     @ApiModelProperty(name = "type", required = true)
     @NationType
     private Integer type;
+    @ApiModelProperty(name = "parent", required = true)
+    private Long parentId;
 }

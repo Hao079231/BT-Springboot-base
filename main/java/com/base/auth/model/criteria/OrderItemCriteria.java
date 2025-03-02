@@ -10,7 +10,6 @@ import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import lombok.Data;
@@ -20,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 public class OrderItemCriteria {
   private Long id;
   private String productName;
+  private List<Order> orders;
   private Integer sortById;
 
   public Specification<OrderItem> getSpecification() {
@@ -27,6 +27,7 @@ public class OrderItemCriteria {
       List<Predicate> predicates = new ArrayList<>();
 
       Join<OrderItem, Product> productJoin = root.join("product");
+      Join<OrderItem, Order> orderJoin = root.join("order");
 
       if (id != null) {
         predicates.add(cb.equal(productJoin.get("id"), id));
@@ -34,6 +35,10 @@ public class OrderItemCriteria {
 
       if (getProductName() != null && !getProductName().isEmpty()) {
         predicates.add(cb.like(cb.lower(productJoin.get("name")), "%" + getProductName().toLowerCase() + "%"));
+      }
+
+      if (getOrders() != null && !getOrders().isEmpty()) {
+        predicates.add(orderJoin.in(getOrders()));
       }
 
       if (sortById != null) {

@@ -7,6 +7,7 @@ import com.base.auth.dto.order.OrderItemDto;
 import com.base.auth.model.Order;
 import com.base.auth.model.OrderItem;
 import java.util.List;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,6 +20,7 @@ public interface OrderMapper {
   @Mapping(source = "totalMoney", target = "totalMoney")
   @Mapping(source = "totalSaleOff", target = "totalSaleOff")
   @Mapping(source = "state", target = "state")
+  @BeanMapping(ignoreByDefault = true)
   @Named("fromOrderToDto")
   OrderDto fromOrderToDto(Order order);
 
@@ -28,6 +30,7 @@ public interface OrderMapper {
   @Mapping(source = "singlePrice", target = "singlePrice")
   @Mapping(source = "saleOff", target = "saleOff")
   @Mapping(source = "order", target = "orderDto", qualifiedByName = "fromOrderToDto")
+  @BeanMapping(ignoreByDefault = true)
   @Named("fromOrderItemToDto")
   OrderItemDto fromOrderItemToDto(OrderItem orderItem);
 
@@ -41,6 +44,7 @@ public interface OrderMapper {
   @Mapping(source = "state", target = "state")
   @Mapping(source = "modifiedDate", target = "modifiedDate")
   @Mapping(source = "createdDate", target = "createdDate")
+  @BeanMapping(ignoreByDefault = true)
   @Named("fromOrderToAdminDto")
   OrderAdminDto fromOrderToAdminDto(Order order);
 
@@ -50,6 +54,7 @@ public interface OrderMapper {
   @Mapping(source = "singlePrice", target = "singlePrice")
   @Mapping(source = "saleOff", target = "saleOff")
   @Mapping(source = "order", target = "orderAdminDto", qualifiedByName = "fromOrderToAdminDto")
+  @BeanMapping(ignoreByDefault = true)
   @Named("fromOrderItemToAdminDto")
   OrderItemAdminDto fromOrderItemToAdminDto(OrderItem orderItem);
 

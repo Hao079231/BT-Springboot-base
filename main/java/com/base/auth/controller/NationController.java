@@ -1,6 +1,5 @@
 package com.base.auth.controller;
 
-import com.base.auth.constant.UserBaseConstant;
 import com.base.auth.dto.ApiMessageDto;
 import com.base.auth.dto.ResponseListDto;
 import com.base.auth.dto.nation.NationDto;
@@ -10,8 +9,9 @@ import com.base.auth.form.nation.UpdateNationForm;
 import com.base.auth.mapper.NationMapper;
 import com.base.auth.model.Nation;
 import com.base.auth.model.criteria.NationCriteria;
-import com.base.auth.repository.CustomerRepository;
+import com.base.auth.repository.CustomerAddressRepository;
 import com.base.auth.repository.NationRepository;
+import com.base.auth.service.NationService;
 import java.util.List;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -41,10 +41,13 @@ public class NationController extends ABasicController{
   private NationRepository nationRepository;
 
   @Autowired
-  private CustomerRepository customerRepository;
+  private CustomerAddressRepository customerAddressRepository;
 
   @Autowired
   NationMapper nationMapper;
+
+  @Autowired
+  private NationService nationService;
 
   @PostMapping(value = "/create", produces= MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('NA_C')")
@@ -57,7 +60,19 @@ public class NationController extends ABasicController{
       return apiMessageDto;
     }
 
+    if (!nationService.isValidParent(request.getType(), request.getParentId())) {
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("Invalid parent ID for the given nation type!");
+      return apiMessageDto;
+    }
+
     nation = nationMapper.fromCreateNation(request);
+    if (request.getParentId() != null) {
+      Nation parentNation = nationRepository.findById(request.getParentId()).orElse(null);
+      nation.setParent(parentNation);
+    } else {
+      nation.setParent(null);
+    }
     nationRepository.save(nation);
     apiMessageDto.setMessage("Create nation success");
     return apiMessageDto;
@@ -100,7 +115,20 @@ public class NationController extends ABasicController{
         return apiMessageDto;
       }
     }
+
+    if (!nationService.isValidParent(request.getType(), request.getParentId())) {
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("Invalid parent ID for the given nation type!");
+      return apiMessageDto;
+    }
+
     nationMapper.mappingForUpdateNation(request, nation);
+    if (request.getParentId() != null) {
+      Nation parentNation = nationRepository.findById(request.getParentId()).orElse(null);
+      nation.setParent(parentNation);
+    } else {
+      nation.setParent(null);
+    }
     nationRepository.save(nation);
     apiMessageDto.setMessage("Update nation success");
     return apiMessageDto;
@@ -113,13 +141,20 @@ public class NationController extends ABasicController{
     Nation nation = nationRepository.findById(id).orElseThrow(()
         -> new NotFoundException("Nation id not found"));
     ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
-    if (customerRepository.existsByProvinceOrDistrictOrCommune(nation.getId())){
+    if (customerAddressRepository.existsByProvinceOrDistrictOrCommune(nation.getId())){
       apiMessageDto.setResult(false);
       apiMessageDto.setMessage("Cannot delete nation because there are still customer living");
+      return apiMessageDto;
+    }
+    if (nationRepository.existsByParentId(id)) {
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("Cannot delete nation because it has child nations!");
       return apiMessageDto;
     }
     nationRepository.deleteById(id);
     apiMessageDto.setMessage("Delete nation success");
     return apiMessageDto;
   }
+
+
 }

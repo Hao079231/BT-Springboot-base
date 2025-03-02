@@ -16,6 +16,6 @@ public class OrderItemDto {
   @ApiModelProperty(name = "Product price")
   private Double singlePrice;
   @ApiModelProperty(name = "Product sale off")
-  private Integer saleOff;
+  private Double saleOff;
   private OrderDto orderDto;
 }

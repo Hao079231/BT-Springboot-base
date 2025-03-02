@@ -43,13 +43,4 @@ public class UpdateCustomerForm {
   @NotEmpty(message = "address cant not be null")
   @ApiModelProperty(name = "address", example = "Quan 9, TPHCM", required = true)
   private String address;
-  @NotNull(message = "province cant not be null")
-  @ApiModelProperty(name = "provinceId", required = true)
-  private Long provinceId;
-  @NotNull(message = "district cant not be null")
-  @ApiModelProperty(name = "districtId", required = true)
-  private Long districtId;
-  @NotNull(message = "commune cant not be null")
-  @ApiModelProperty(name = "communeId", required = true)
-  private Long communeId;
 }
