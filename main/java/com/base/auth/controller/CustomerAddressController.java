@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v1/client/address")
+@RequestMapping("/v1/customer-address")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
 public class CustomerAddressController extends ABasicController{
@@ -69,6 +69,18 @@ public class CustomerAddressController extends ABasicController{
     Nation communeNation = nationRepository.findByIdAndType(request.getCommuneId(),
         UserBaseConstant.NATION_TYPE_COMMUNE).orElseThrow(()
         -> new NotFoundException("Commune id not found"));
+
+    if (districtNation.getParent() == null || !districtNation.getParent().getId().equals(provinceNation.getId())){
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("The district must belong to the province");
+      return apiMessageDto;
+    }
+
+    if (communeNation.getParent() == null || !communeNation.getParent().getId().equals(districtNation.getId())){
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("The commune must belong to the district");
+      return apiMessageDto;
+    }
 
     if (request.getIsDefault()) {
       customerAddressRepository.updateIsDefaultFalseByCustomerId(customer.getId());
@@ -131,6 +143,18 @@ public class CustomerAddressController extends ABasicController{
         UserBaseConstant.NATION_TYPE_COMMUNE).orElseThrow(()
         -> new NotFoundException("Commune id not found"));
 
+    if (districtNation.getParent() == null || !districtNation.getParent().getId().equals(provinceNation.getId())){
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("The district must belong to the province");
+      return apiMessageDto;
+    }
+
+    if (communeNation.getParent() == null || !communeNation.getParent().getId().equals(districtNation.getId())){
+      apiMessageDto.setResult(false);
+      apiMessageDto.setMessage("The commune must belong to the district");
+      return apiMessageDto;
+    }
+
     if (request.getIsDefault()) {
       customerAddressRepository.updateIsDefaultFalseByCustomerId(customer.getId());
     }
@@ -153,7 +177,7 @@ public class CustomerAddressController extends ABasicController{
     CustomerAddress customerAddress = customerAddressRepository.findById(id).orElseThrow(()
     -> new NotFoundException("Customer address id not found"));
     Customer customer = customerRepository.findById(getCurrentUser()).orElseThrow(()
-    -> new NotFoundException("Cannot delete the address with this customer ID"));
+    -> new NotFoundException("Customer id not found"));
     customerAddressRepository.deleteByIdAndCustomerId(id, customer.getId());
     apiMessageDto.setMessage("Delete customer address success");
     return apiMessageDto;
