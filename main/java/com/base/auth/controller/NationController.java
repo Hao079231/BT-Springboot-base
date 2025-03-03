@@ -1,5 +1,6 @@
 package com.base.auth.controller;
 
+import com.base.auth.constant.UserBaseConstant;
 import com.base.auth.dto.ApiMessageDto;
 import com.base.auth.dto.ResponseListDto;
 import com.base.auth.dto.nation.NationDto;
@@ -11,7 +12,6 @@ import com.base.auth.model.Nation;
 import com.base.auth.model.criteria.NationCriteria;
 import com.base.auth.repository.CustomerAddressRepository;
 import com.base.auth.repository.NationRepository;
-import com.base.auth.service.NationService;
 import java.util.List;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -46,9 +46,6 @@ public class NationController extends ABasicController{
   @Autowired
   NationMapper nationMapper;
 
-  @Autowired
-  private NationService nationService;
-
   @PostMapping(value = "/create", produces= MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('NA_C')")
   public ApiMessageDto<String> create(@Valid @RequestBody CreateNationForm request, BindingResult bindingResult){
@@ -60,7 +57,7 @@ public class NationController extends ABasicController{
       return apiMessageDto;
     }
 
-    if (!nationService.isValidParent(request.getType(), request.getParentId())) {
+    if (!isValidParent(request.getType(), request.getParentId())) {
       apiMessageDto.setResult(false);
       apiMessageDto.setMessage("Invalid parent ID for the given nation type!");
       return apiMessageDto;
@@ -116,7 +113,7 @@ public class NationController extends ABasicController{
       }
     }
 
-    if (!nationService.isValidParent(request.getType(), request.getParentId())) {
+    if (!isValidParent(request.getType(), request.getParentId())) {
       apiMessageDto.setResult(false);
       apiMessageDto.setMessage("Invalid parent ID for the given nation type!");
       return apiMessageDto;
@@ -156,5 +153,18 @@ public class NationController extends ABasicController{
     return apiMessageDto;
   }
 
-
+  private boolean isValidParent(Integer type, Long parentId) {
+    if (type.equals(UserBaseConstant.NATION_TYPE_PROVINCE)) {
+      return parentId == null;
+    }
+    if (parentId == null) {
+      return false;
+    }
+    Nation parentNation = nationRepository.findById(parentId).orElse(null);
+    if (parentNation == null) {
+      return false;
+    }
+    return (type.equals(UserBaseConstant.NATION_TYPE_DISTRICT) && parentNation.getType().equals(UserBaseConstant.NATION_TYPE_PROVINCE)) ||
+        (type.equals(UserBaseConstant.NATION_TYPE_COMMUNE) && parentNation.getType().equals(UserBaseConstant.NATION_TYPE_DISTRICT));
+  }
 }

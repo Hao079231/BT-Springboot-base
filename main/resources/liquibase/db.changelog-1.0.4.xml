@@ -1,11 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <changeSet author="Authentication" id="1740704500324-1">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="db_user_base_order"/>
-            </not>
-        </preConditions>
         <createTable tableName="db_user_base_order">
             <column name="code" type="VARCHAR(255)"/>
             <column name="state" type="INT"/>
@@ -36,11 +31,6 @@
         <modifyDataType tableName="db_user_base_order" columnName="total_sale_off" newDataType="DOUBLE PRECISION"/>
     </changeSet>
     <changeSet author="Authentication" id="1740704500324-2">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="db_user_base_order_item"/>
-            </not>
-        </preConditions>
         <createTable tableName="db_user_base_order_item">
             <column name="quantity" type="INT"/>
             <column name="sale_off" type="INT"/>
@@ -71,27 +61,12 @@
         <modifyDataType tableName="db_user_base_order_item" columnName="sale_off" newDataType="DOUBLE PRECISION"/>
     </changeSet>
     <changeSet author="Authentication" id="1740704500324-3">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <foreignKeyConstraintExists foreignKeyName="FK75mm45h0hikk7js0td6p3sl0t"/>
-            </not>
-        </preConditions>
         <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="db_user_base_order_item" constraintName="FK75mm45h0hikk7js0td6p3sl0t" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_order" validate="true"/>
     </changeSet>
     <changeSet author="Authentication" id="1740704500324-4">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <foreignKeyConstraintExists foreignKeyName="FKg8yxypd7cdcft7uhjm20r0wgp"/>
-            </not>
-        </preConditions>
         <addForeignKeyConstraint baseColumnNames="product_id" baseTableName="db_user_base_order_item" constraintName="FKg8yxypd7cdcft7uhjm20r0wgp" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_product" validate="true"/>
     </changeSet>
     <changeSet author="Authentication" id="1740704500324-5">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <foreignKeyConstraintExists foreignKeyName="FKl49a6h7k2cnwwhwm7ej4rgc2c"/>
-            </not>
-        </preConditions>
         <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="db_user_base_order" constraintName="FKl49a6h7k2cnwwhwm7ej4rgc2c" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_user_base_customer" validate="true"/>
     </changeSet>
 </databaseChangeLog>
