@@ -2,6 +2,8 @@ package com.base.auth.constant;
 
 
 import io.swagger.models.auth.In;
+import java.util.Arrays;
+import java.util.List;
 
 public class UserBaseConstant {
     public static final String DATE_FORMAT = "dd/MM/yyyy";
@@ -41,6 +43,17 @@ public class UserBaseConstant {
     public static final Integer ORDER_DELIVERY = 3;
     public static final Integer ORDER_DONE = 4;
     public static final Integer ORDER_CANCEL = 5;
+
+    public static final Integer CUSTOMER_ADDRESS_HOME = 1;
+    public static final Integer CUSTOMER_ADDRESS_OFFICE = 2;
+
+    public static final List<Integer> validStates = Arrays.asList(
+        ORDER_BOOKING,
+        ORDER_APPROVED,
+        ORDER_DELIVERY,
+        ORDER_DONE,
+        ORDER_CANCEL
+    );
 
     private UserBaseConstant(){
         throw new IllegalStateException("Utility class");
